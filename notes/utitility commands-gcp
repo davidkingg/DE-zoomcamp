@@ -1,0 +1,18 @@
+sudo modprobe -r psmouse
+sudo modprobe psmouse
+
+##nconnecting to a vm with ssh
+first create a local shh public and private kwy with this command
+ssh-keygen -t rsa -f gcp -C david-b 2048
+
+copy the gcp.pub key to google metadata shh key and save
+
+
+# connect with this command
+ssh -i ~/.ssh/gcp david@34.168.40.100
+
+### using gcp with vscode
+download the extension remote ssh on vscode
+
+## check executable path
+nan .bashrc

@@ -1,0 +1,57 @@
+docker
+
+# check all images
+docker image
+
+# check all running containers
+docker container ps
+
+# check all containers
+docker container ps -a
+
+#remove all stopped containers
+docker container prune
+
+#remove a docker image
+docker image rm postgres:13-beta2-alpine 
+
+# remove all images with none tag
+docker images | grep none | awk '{ print $3; }' | xargs docker rmi
+
+
+
+
+## docker run #####
+The docker run command first creates a writeable container layer over the specified image, and then starts it using the specified command.
+docker run basically starts a container from a docker image
+
+# run ubuntu image in interactive mode
+docker run -it ubuntu bash
+docker run -it python:3.9
+
+# to make bash an entry point so we can install pip libraies
+docker run -it --entrypoint=bash python:3.9
+
+
+#### docker build ####
+docker build is used to build a docker image from a Dockerfile 
+
+
+
+#### docker file #####
+below is an example of a dockerfile created with 'cat > test.txt'  
+
+FROM python:3.10
+RUN pip install psycopg2-binary
+ENTRYPOINT ['bash']
+
+# in the dockerfile above, we tell docker to bbuild a container on python:3.10 image then install pip install psycopg2-binarysycopg and then enter the container with bash
+
+
+# building the docker image we use
+docker build -t test:pyscop .
+# the above command would build a docker image with name test and tag pyscop
+
+
+#we can pass an arrgument into the container by addig it to the docker run command
+docker run test:v1 2022-11-11 # this would pass the 2022-11-11 as an argument ot the container which can then be accessed in the python script with sys.argv e,g sys.argv[1]

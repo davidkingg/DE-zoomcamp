@@ -1,0 +1,52 @@
+# postgres with docker 
+# we use -e to set the environment variables
+
+# we use the -v to map a storage volume on the host machine to the container. so we create a folder to be mapped. this ensure data presistence even if the container restarts as the data is also saved on the host machine
+
+# we use -p to map a port on the host machine to a port on the docker machine
+
+docker run -e POSTGRES_USER="test" -e POSTGRES_PASSWORD="test" -e POSTGRES_DB="test" -v $(pwd)/test_volumes:/var/lib/postgresql/data -p 5432:5432 postgres:12
+
+## for pg admin
+docker run -it -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" -e -e PGADMIN_DEFAULT_PASSWORD="admin" -p 8000:80  dpage/pgadmin4
+
+
+
+### using networks to connect pgadmin and postgres as they cant connect to each other
+# we first create a network
+docker network create pg-network
+
+# we then update the run command for the postgres and pgadmin to add the created networl and a name
+docker run --network="pg-network" --name="pg-database" -e POSTGRES_USER="test" -e POSTGRES_PASSWORD="test" -e POSTGRES_DB="test" -v $(pwd)/test_volumes:/var/lib/postgresql/data -p 5432:5432 postgres:12
+
+docker run -it --network="pg-network" -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" -e PGADMIN_DEFAULT_PASSWORD="admin" -p 8000:80  dpage/pgadmin4
+
+
+
+
+###### connecting to the docker postgres database ########
+# we would use pgcil for the connection
+pip install pgcli
+
+### connecting to the database with host, user and database name
+pgcli -h localhost -u test - d test
+
+show all tables 
+\dt
+
+### connecting with pandas sql alchemy
+from sqlalchemy import create_engine, text
+
+engine=create_engine('postgresql://test:test@localhost:5432/test')
+engine.connect()
+
+### pushong an empty table
+d_csv=pd.read_csv('taxi_data.csv',nrows=5, parse_dates=['tpep_pickup_datetime','tpep_dropoff_datetime'])
+
+## pushing data in chunks
+df_iter = pd.read_csv('taxi_data.csv',chunksize=100000, iterator=True,parse_dates=['tpep_pickup_datetime','tpep_dropoff_datetime'])
+
+
+### making queries
+pd.DataFrame(engine.connect().execute(text('select * from taxi_data limit 5')))
+
